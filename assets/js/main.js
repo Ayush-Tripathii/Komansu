@@ -189,6 +189,13 @@
       if (e.pointerType === 'touch') { S.tapX = e.clientX; S.tapY = e.clientY; S.lastMove = performance.now(); }
       else html.classList.add('cursor-down');
     }, { passive: true });
+    // Track continuous touch dragging so Sentinel camera swivels on mobile
+    addEventListener('touchmove', (e) => {
+      if (!e.touches || !e.touches[0]) return;
+      S.tapX = e.touches[0].clientX;
+      S.tapY = e.touches[0].clientY;
+      S.lastMove = performance.now();
+    }, { passive: true });
     addEventListener('pointerup', () => html.classList.remove('cursor-down'), { passive: true });
     d.addEventListener('mouseleave', () => { S.pointerIn = false; });
   }
@@ -214,13 +221,16 @@
       this.on = true;
     },
     target(t) {
-      const idle = t - S.lastMove > 3000;
+      const idle = t - S.lastMove > 2400;
       if (FINE && S.pointerIn && !idle) return { x: S.mx, y: S.my };
       if (!FINE && S.tapX != null && !idle) return { x: S.tapX, y: S.tapY };
       if (!FINE) {
-        // touch: follow scroll position with a gentle sweep
-        const k = scrollY / 420;
-        return { x: S.vw / 2 + Math.sin(k) * S.vw * 0.32, y: S.vh * 0.62 };
+        // touch idle: follow scroll position with a gentle dynamic sweep
+        const k = scrollY / 340;
+        return {
+          x: S.vw / 2 + Math.sin(k) * S.vw * 0.36 + Math.sin(t / 1900) * (S.vw * 0.08),
+          y: clamp(S.vh * 0.54 + Math.cos(k * 0.8) * (S.vh * 0.12), 140, S.vh * 0.82)
+        };
       }
       // idle patrol: slow pan left ↔ right
       const p = Math.sin(t / 2200);
@@ -475,7 +485,29 @@
       const off = () => { hovering = false; light(null); };
       card.addEventListener('pointerenter', on); card.addEventListener('focus', on);
       card.addEventListener('pointerleave', off); card.addEventListener('blur', off);
+      // Mobile tap support on cards
+      card.addEventListener('click', () => { light(id); hovering = true; setTimeout(() => { hovering = false; }, 3200); });
     });
+    // Direct tap on SVG topology nodes for mobile users
+    $$('[data-node]', svg).forEach((node) => {
+      const id = node.dataset.node;
+      node.style.cursor = 'pointer';
+      node.addEventListener('click', (e) => {
+        e.stopPropagation();
+        hovering = true;
+        light(id);
+        setTimeout(() => { hovering = false; }, 3200);
+      });
+    });
+    // Mobile auto-trace as service cards scroll into view
+    if (!FINE && !REDUCE) {
+      const cardIO = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting && !hovering) light(e.target.dataset.nodeLink);
+        });
+      }, { rootMargin: '-25% 0px -35% 0px', threshold: 0.2 });
+      $$('[data-node-link]').forEach((card) => cardIO.observe(card));
+    }
     if (REDUCE) svg.pauseAnimations && svg.pauseAnimations();
     // only animate while visible
     new IntersectionObserver(([e]) => {
@@ -571,10 +603,44 @@
       addEventListener('resize', () => this.layout(), { passive: true });
       d.fonts && d.fonts.ready.then(() => this.layout());
     },
+    initMobile() {
+      if (this.mobileInit || !this.sec) return;
+      this.mobileInit = true;
+      const steps = this.steps;
+      const progressSteps = $('.process-steps', this.sec);
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            const idx = steps.indexOf(e.target);
+            if (idx !== -1) {
+              steps.forEach((s, i) => {
+                s.classList.toggle('is-on', i <= idx);
+                s.classList.toggle('is-current', i === idx);
+              });
+              const pct = (idx + 1) / steps.length;
+              if (this.stepEl) this.stepEl.textContent = String(idx + 1).padStart(2, '0');
+              if (this.bar) this.bar.style.transform = `scaleX(${pct})`;
+              if (progressSteps) {
+                progressSteps.style.setProperty('--mobile-cable-h', `${((idx + 0.6) / steps.length) * 100}%`);
+              }
+            }
+          }
+        });
+      }, { rootMargin: '-20% 0px -38% 0px', threshold: 0.1 });
+      steps.forEach((s) => io.observe(s));
+    },
     layout() {
       if (!this.track) return;
       this.active = !this.mq.matches && !REDUCE;
-      if (!this.active) { this.track.style.transform = ''; this.steps.forEach((s) => s.classList.add('is-on')); return; }
+      if (!this.active) {
+        this.track.style.transform = '';
+        if (this.mq.matches && !REDUCE) {
+          this.initMobile();
+        } else {
+          this.steps.forEach((s) => s.classList.add('is-on'));
+        }
+        return;
+      }
       const tr = this.track.getBoundingClientRect();
       this.svg.setAttribute('viewBox', `0 0 ${tr.width} ${tr.height}`);
       const nodes = this.steps.map((s) => {
@@ -641,6 +707,15 @@
       if (v && FINE && !REDUCE) {
         t.addEventListener('pointerenter', () => { const p = v.play(); p && p.catch(() => {}); });
         t.addEventListener('pointerleave', () => v.pause());
+      }
+      if (v && !FINE && !REDUCE) {
+        new IntersectionObserver(([entry]) => {
+          if (entry.isIntersecting) {
+            const p = v.play(); p && p.catch(() => {});
+          } else {
+            v.pause();
+          }
+        }, { rootMargin: '-20% 0px -20% 0px', threshold: 0.35 }).observe(t);
       }
       t.addEventListener('click', () => {
         stage.innerHTML = '';
@@ -834,6 +909,128 @@
   };
 
   /* ------------------------------------------------------------------
+     MOBILE TOUCH MOTION ENGINE
+     Exclusively for mobile / touch devices (zero impact on desktop)
+     ------------------------------------------------------------------ */
+  function initMobileTouchEngine() {
+    if (FINE || REDUCE) return;
+
+    // 1. Mobile HUD toast for IVA detections
+    const toast = $('[data-mobile-iva]');
+    const toastText = $('[data-mobile-iva-text]', toast);
+    let toastTimer = 0;
+    const showMobileHUD = (txt) => {
+      if (!toast) return;
+      clearTimeout(toastTimer);
+      if (toastText) toastText.textContent = txt;
+      toast.classList.add('is-active');
+      toastTimer = setTimeout(() => { toast.classList.remove('is-active'); }, 1800);
+    };
+
+    // 2. Blueprint Circuit Ripple & Target Lock on Touch
+    const createRipple = (touch, el) => {
+      const r = el.getBoundingClientRect();
+      const ripple = d.createElement('span');
+      ripple.className = 'touch-circuit-ripple';
+      const size = Math.max(r.width, r.height) * 1.8;
+      ripple.style.width = ripple.style.height = `${size}px`;
+      ripple.style.left = `${touch.clientX - r.left}px`;
+      ripple.style.top = `${touch.clientY - r.top}px`;
+      el.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 600);
+    };
+
+    d.addEventListener('touchstart', (e) => {
+      if (!e.touches || !e.touches[0]) return;
+      const t = e.touches[0];
+      const target = t.target.closest('a, button, .btn, .card, .svc-card, .proj-card, .pillar, .partner, .filter-btn');
+      if (!target) return;
+
+      // Ripple on interactive buttons & links
+      if (target.matches('.btn, .filter-btn, .chip, .float-btn, .menu-toggle, .mm-link')) {
+        createRipple(t, target);
+      }
+
+      // IVA target lock & telemetry readout on card touch
+      const ivaEl = t.target.closest('[data-iva], .svc-card, .proj-card, .pillar');
+      if (ivaEl) {
+        ivaEl.classList.remove('iva-locked');
+        void ivaEl.offsetWidth; // re-trigger animation
+        ivaEl.classList.add('iva-locked');
+        setTimeout(() => ivaEl.classList.remove('iva-locked'), 1400);
+
+        const desc = ivaEl.dataset.iva || (ivaEl.querySelector('h3, h2, b') ? `TARGET · ${ivaEl.querySelector('h3, h2, b').textContent.slice(0, 24).toUpperCase()}` : 'SYSTEM · ACTIVE');
+        showMobileHUD(`IVA · ${desc}`);
+      }
+    }, { passive: true });
+
+    // 3. Mobile 3D Touch-Tilt on cards
+    $$('.tilt').forEach((el) => {
+      let isTouching = false;
+      const updateTilt = (touch) => {
+        const r = el.getBoundingClientRect();
+        const px = clamp((touch.clientX - r.left) / r.width, 0, 1);
+        const py = clamp((touch.clientY - r.top) / r.height, 0, 1);
+        el.classList.add('is-touch-active');
+        el.style.setProperty('--rx', ((0.5 - py) * 6).toFixed(2) + 'deg');
+        el.style.setProperty('--ry', ((px - 0.5) * 8).toFixed(2) + 'deg');
+        el.style.setProperty('--lx', (px * 100).toFixed(1) + '%');
+        el.style.setProperty('--ly', (py * 100).toFixed(1) + '%');
+      };
+      el.addEventListener('touchstart', (e) => {
+        if (!e.touches || !e.touches[0]) return;
+        isTouching = true;
+        updateTilt(e.touches[0]);
+      }, { passive: true });
+      el.addEventListener('touchmove', (e) => {
+        if (!isTouching || !e.touches || !e.touches[0]) return;
+        updateTilt(e.touches[0]);
+      }, { passive: true });
+      const resetTilt = () => {
+        isTouching = false;
+        el.classList.remove('is-touch-active');
+        el.style.setProperty('--rx', '0deg');
+        el.style.setProperty('--ry', '0deg');
+      };
+      el.addEventListener('touchend', resetTilt, { passive: true });
+      el.addEventListener('touchcancel', resetTilt, { passive: true });
+    });
+
+    // 4. Mobile Scroll-Focus: As cards scroll into center focus, highlight blueprint lines
+    const focusIO = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        e.target.classList.toggle('mobile-in-focus', e.isIntersecting);
+      });
+    }, { rootMargin: '-25% 0px -25% 0px', threshold: 0.25 });
+    $$('.svc-card, .proj-card, .pillar, .principle, .partner, .std').forEach((c) => focusIO.observe(c));
+
+    // 5. Mobile Gyroscope Parallax (DeviceOrientation)
+    let lastGyro = 0;
+    const handleOrientation = (e) => {
+      const now = performance.now();
+      if (now - lastGyro < 45) return; // 22fps limit to preserve battery
+      lastGyro = now;
+      if (e.gamma == null || e.beta == null) return;
+      const gx = clamp(e.gamma / 28, -1, 1);
+      const gy = clamp((e.beta - 45) / 28, -1, 1);
+      html.style.setProperty('--gyro-x', `${(gx * 10).toFixed(1)}px`);
+      html.style.setProperty('--gyro-y', `${(gy * 10).toFixed(1)}px`);
+    };
+    try {
+      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        addEventListener('touchstart', function req() {
+          DeviceOrientationEvent.requestPermission().then((res) => {
+            if (res === 'granted') addEventListener('deviceorientation', handleOrientation, { passive: true });
+          }).catch(() => {});
+          removeEventListener('touchstart', req);
+        }, { once: true, passive: true });
+      } else if (typeof DeviceOrientationEvent !== 'undefined') {
+        addEventListener('deviceorientation', handleOrientation, { passive: true });
+      }
+    } catch (_) {}
+  }
+
+  /* ------------------------------------------------------------------
      Render loop
      ------------------------------------------------------------------ */
   function loop(t) {
@@ -872,6 +1069,7 @@
     initTickers();
     initMenu();
     Wordmark.init();
+    initMobileTouchEngine();
     requestAnimationFrame(loop);
   };
   if (d.readyState === 'loading') d.addEventListener('DOMContentLoaded', start); else start();
