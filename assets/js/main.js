@@ -24,6 +24,7 @@
 
   const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const FINE = matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const isMobile = () => S.vw <= 900 || !FINE;
   const store = (() => { try { return window.sessionStorage; } catch (e) { return null; } })();
 
   /** Shared pointer / scroll state read by the render loop */
@@ -222,14 +223,14 @@
     },
     target(t) {
       const idle = t - S.lastMove > 2400;
-      if (FINE && S.pointerIn && !idle) return { x: S.mx, y: S.my };
-      if (!FINE && S.tapX != null && !idle) return { x: S.tapX, y: S.tapY };
-      if (!FINE) {
-        // touch idle: follow scroll position with a gentle dynamic sweep
-        const k = scrollY / 340;
+      if (!isMobile() && FINE && S.pointerIn && !idle) return { x: S.mx, y: S.my };
+      if (isMobile() && S.tapX != null && !idle) return { x: S.tapX, y: S.tapY };
+      if (isMobile()) {
+        // In mobile view: follow scroll position with a continuous dynamic sweep
+        const k = scrollY / 260;
         return {
-          x: S.vw / 2 + Math.sin(k) * S.vw * 0.36 + Math.sin(t / 1900) * (S.vw * 0.08),
-          y: clamp(S.vh * 0.54 + Math.cos(k * 0.8) * (S.vh * 0.12), 140, S.vh * 0.82)
+          x: S.vw / 2 + Math.sin(k) * S.vw * 0.38 + Math.sin(t / 1800) * (S.vw * 0.08),
+          y: clamp(S.vh * 0.52 + Math.cos(k * 0.75) * (S.vh * 0.15), 140, S.vh * 0.82)
         };
       }
       // idle patrol: slow pan left ↔ right
@@ -608,6 +609,13 @@
       this.mobileInit = true;
       const steps = this.steps;
       const progressSteps = $('.process-steps', this.sec);
+      // Activate step 1 immediately on mobile
+      if (steps[0]) {
+        steps[0].classList.add('is-on', 'is-current');
+        if (this.stepEl) this.stepEl.textContent = '01';
+        if (this.bar) this.bar.style.transform = `scaleX(${1 / steps.length})`;
+        if (progressSteps) progressSteps.style.setProperty('--mobile-cable-h', `${(1 / steps.length) * 100}%`);
+      }
       const io = new IntersectionObserver((entries) => {
         entries.forEach((e) => {
           if (e.isIntersecting) {
@@ -626,7 +634,7 @@
             }
           }
         });
-      }, { rootMargin: '-20% 0px -38% 0px', threshold: 0.1 });
+      }, { rootMargin: '-10% 0px -25% 0px', threshold: 0.1 });
       steps.forEach((s) => io.observe(s));
     },
     layout() {
@@ -910,81 +918,101 @@
 
   /* ------------------------------------------------------------------
      MOBILE TOUCH MOTION ENGINE
-     Exclusively for mobile / touch devices (zero impact on desktop)
+     Exclusively active when in mobile view (screen width <= 900 or touch)
+     Zero impact on desktop view.
      ------------------------------------------------------------------ */
   function initMobileTouchEngine() {
-    if (FINE || REDUCE) return;
+    if (REDUCE) return;
 
     // 1. Mobile HUD toast for IVA detections
     const toast = $('[data-mobile-iva]');
     const toastText = $('[data-mobile-iva-text]', toast);
     let toastTimer = 0;
     const showMobileHUD = (txt) => {
-      if (!toast) return;
+      if (!toast || !isMobile()) return;
       clearTimeout(toastTimer);
       if (toastText) toastText.textContent = txt;
       toast.classList.add('is-active');
-      toastTimer = setTimeout(() => { toast.classList.remove('is-active'); }, 1800);
+      toastTimer = setTimeout(() => { toast.classList.remove('is-active'); }, 2200);
     };
 
-    // 2. Blueprint Circuit Ripple & Target Lock on Touch
-    const createRipple = (touch, el) => {
+    // 2. Blueprint Circuit Ripple
+    const createRipple = (clientX, clientY, el) => {
       const r = el.getBoundingClientRect();
       const ripple = d.createElement('span');
       ripple.className = 'touch-circuit-ripple';
-      const size = Math.max(r.width, r.height) * 1.8;
+      const size = Math.max(r.width, r.height) * 2;
       ripple.style.width = ripple.style.height = `${size}px`;
-      ripple.style.left = `${touch.clientX - r.left}px`;
-      ripple.style.top = `${touch.clientY - r.top}px`;
+      ripple.style.left = `${clientX - r.left}px`;
+      ripple.style.top = `${clientY - r.top}px`;
       el.appendChild(ripple);
       setTimeout(() => ripple.remove(), 600);
     };
 
-    d.addEventListener('touchstart', (e) => {
-      if (!e.touches || !e.touches[0]) return;
-      const t = e.touches[0];
-      const target = t.target.closest('a, button, .btn, .card, .svc-card, .proj-card, .pillar, .partner, .filter-btn');
-      if (!target) return;
+    // 3. Card Target Lock & Laser Scan Trigger
+    const triggerMobileCard = (target, clientX, clientY) => {
+      if (!isMobile() || !target) return;
 
-      // Ripple on interactive buttons & links
-      if (target.matches('.btn, .filter-btn, .chip, .float-btn, .menu-toggle, .mm-link')) {
-        createRipple(t, target);
-      }
+      const btn = target.closest('.btn, .filter-btn, .chip, .float-btn, .menu-toggle, .mm-link');
+      if (btn) createRipple(clientX, clientY, btn);
 
-      // IVA target lock & telemetry readout on card touch
-      const ivaEl = t.target.closest('[data-iva], .svc-card, .proj-card, .pillar');
-      if (ivaEl) {
-        ivaEl.classList.remove('iva-locked');
-        void ivaEl.offsetWidth; // re-trigger animation
-        ivaEl.classList.add('iva-locked');
-        setTimeout(() => ivaEl.classList.remove('iva-locked'), 1400);
+      const card = target.closest('.svc-card, .proj-card, .pillar, .card, .principle, .partner, .std, [data-iva]');
+      if (card) {
+        card.classList.remove('iva-locked');
+        void card.offsetWidth; // force reflow
+        card.classList.add('iva-locked');
 
-        const desc = ivaEl.dataset.iva || (ivaEl.querySelector('h3, h2, b') ? `TARGET · ${ivaEl.querySelector('h3, h2, b').textContent.slice(0, 24).toUpperCase()}` : 'SYSTEM · ACTIVE');
+        // Add sweeping laser scan bar inside card
+        let scan = $('.iva-scan-bar', card);
+        if (!scan) {
+          scan = d.createElement('span');
+          scan.className = 'iva-scan-bar';
+          card.appendChild(scan);
+        }
+        setTimeout(() => {
+          card.classList.remove('iva-locked');
+          scan && scan.remove();
+        }, 1100);
+
+        const desc = card.dataset.iva || (card.querySelector('h3, h2, b') ? `TARGET · ${card.querySelector('h3, h2, b').textContent.slice(0, 26).toUpperCase()}` : 'SYSTEM · ACTIVE');
         showMobileHUD(`IVA · ${desc}`);
       }
+    };
+
+    // Touch interaction for smartphones & tablets
+    d.addEventListener('touchstart', (e) => {
+      if (!e.touches || !e.touches[0]) return;
+      triggerMobileCard(e.target, e.touches[0].clientX, e.touches[0].clientY);
     }, { passive: true });
 
-    // 3. Mobile 3D Touch-Tilt on cards
+    // Click interaction for mobile view in browser / devtools
+    d.addEventListener('click', (e) => {
+      if (!isMobile()) return;
+      triggerMobileCard(e.target, e.clientX, e.clientY);
+    });
+
+    // 4. Mobile 3D Touch-Tilt on cards
     $$('.tilt').forEach((el) => {
       let isTouching = false;
-      const updateTilt = (touch) => {
+      const updateTilt = (clientX, clientY) => {
+        if (!isMobile()) return;
         const r = el.getBoundingClientRect();
-        const px = clamp((touch.clientX - r.left) / r.width, 0, 1);
-        const py = clamp((touch.clientY - r.top) / r.height, 0, 1);
+        const px = clamp((clientX - r.left) / r.width, 0, 1);
+        const py = clamp((clientY - r.top) / r.height, 0, 1);
         el.classList.add('is-touch-active');
-        el.style.setProperty('--rx', ((0.5 - py) * 6).toFixed(2) + 'deg');
-        el.style.setProperty('--ry', ((px - 0.5) * 8).toFixed(2) + 'deg');
+        el.style.setProperty('--rx', ((0.5 - py) * 7).toFixed(2) + 'deg');
+        el.style.setProperty('--ry', ((px - 0.5) * 9).toFixed(2) + 'deg');
         el.style.setProperty('--lx', (px * 100).toFixed(1) + '%');
         el.style.setProperty('--ly', (py * 100).toFixed(1) + '%');
       };
       el.addEventListener('touchstart', (e) => {
         if (!e.touches || !e.touches[0]) return;
         isTouching = true;
-        updateTilt(e.touches[0]);
+        updateTilt(e.touches[0].clientX, e.touches[0].clientY);
       }, { passive: true });
       el.addEventListener('touchmove', (e) => {
         if (!isTouching || !e.touches || !e.touches[0]) return;
-        updateTilt(e.touches[0]);
+        updateTilt(e.touches[0].clientX, e.touches[0].clientY);
       }, { passive: true });
       const resetTilt = () => {
         isTouching = false;
@@ -996,19 +1024,24 @@
       el.addEventListener('touchcancel', resetTilt, { passive: true });
     });
 
-    // 4. Mobile Scroll-Focus: As cards scroll into center focus, highlight blueprint lines
+    // 5. Mobile Scroll-Focus: As cards scroll into center focus, highlight blueprint lines
     const focusIO = new IntersectionObserver((entries) => {
       entries.forEach((e) => {
-        e.target.classList.toggle('mobile-in-focus', e.isIntersecting);
+        if (isMobile()) {
+          e.target.classList.toggle('mobile-in-focus', e.isIntersecting);
+        } else {
+          e.target.classList.remove('mobile-in-focus');
+        }
       });
-    }, { rootMargin: '-25% 0px -25% 0px', threshold: 0.25 });
+    }, { rootMargin: '-20% 0px -20% 0px', threshold: 0.2 });
     $$('.svc-card, .proj-card, .pillar, .principle, .partner, .std').forEach((c) => focusIO.observe(c));
 
-    // 5. Mobile Gyroscope Parallax (DeviceOrientation)
+    // 6. Mobile Gyroscope Parallax (DeviceOrientation)
     let lastGyro = 0;
     const handleOrientation = (e) => {
+      if (!isMobile()) return;
       const now = performance.now();
-      if (now - lastGyro < 45) return; // 22fps limit to preserve battery
+      if (now - lastGyro < 45) return;
       lastGyro = now;
       if (e.gamma == null || e.beta == null) return;
       const gx = clamp(e.gamma / 28, -1, 1);

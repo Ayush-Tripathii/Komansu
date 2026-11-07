@@ -949,6 +949,7 @@ html.iris-arrive .iris { clip-path: circle(150% at 50% 50%); }
 /* ---------- 16 MOBILE INTERACTIVE MOTION ENGINE ---------- */
 .mobile-iva-toast { display: none; }
 .touch-circuit-ripple { display: none; }
+.iva-scan-bar { display: none; }
 
 @media (max-width: 900px) {
   /* Subtle gyroscope parallax on blueprint grid */
@@ -960,24 +961,24 @@ html.iris-arrive .iris { clip-path: circle(150% at 50% 50%); }
   /* Mobile IVA Telemetry HUD Toast */
   .mobile-iva-toast {
     position: fixed;
-    top: 18px;
+    top: 16px;
     left: 50%;
-    transform: translate3d(-50%, -24px, 0);
+    transform: translate3d(-50%, -30px, 0);
     z-index: 9995;
     pointer-events: none;
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 7px 16px;
-    background: rgba(20, 23, 28, .88);
-    -webkit-backdrop-filter: blur(14px);
-    backdrop-filter: blur(14px);
-    border: 1px solid rgba(31, 79, 255, .5);
+    padding: 8px 18px;
+    background: rgba(16, 20, 26, .94);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--accent);
     border-radius: 999px;
     color: #fff;
-    font: 500 .68rem/1 var(--f-mono);
+    font: 600 .72rem/1 var(--f-mono);
     letter-spacing: .08em;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, .28), 0 0 14px rgba(31, 79, 255, .35);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .4), 0 0 16px rgba(31, 79, 255, .5);
     opacity: 0;
     transition: transform .35s var(--ease), opacity .35s var(--ease);
   }
@@ -986,39 +987,42 @@ html.iris-arrive .iris { clip-path: circle(150% at 50% 50%); }
     transform: translate3d(-50%, 0, 0);
   }
   .mobile-iva-toast .m-dot {
-    width: 6px;
-    height: 6px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
-    background: var(--ok);
-    box-shadow: 0 0 8px var(--ok);
-    animation: blink .8s infinite;
+    background: #00F5A0;
+    box-shadow: 0 0 10px #00F5A0;
+    animation: blink .7s infinite;
   }
 
-  /* Card locked-on reticle on mobile touch */
+  /* Card locked-on reticle & laser scan on mobile touch / click */
   .iva-locked {
     position: relative;
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 2px var(--accent), 0 12px 36px -4px rgba(31, 79, 255, .32) !important;
+    transform: translateY(-3px) scale(1.01) !important;
+    transition: transform .25s var(--ease), box-shadow .25s, border-color .2s !important;
   }
-  .iva-locked::after {
-    content: "";
+  .iva-locked.xh::after, .iva-locked .xh::after {
+    inset: -10px !important;
+    --c: var(--accent) !important;
+  }
+  .iva-scan-bar {
+    display: block;
     position: absolute;
-    inset: -6px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--accent) 25%, #FFD89A 50%, var(--accent) 75%, transparent);
+    box-shadow: 0 0 14px 2px var(--accent);
     pointer-events: none;
-    z-index: 5;
-    --c: var(--accent);
-    background:
-      linear-gradient(var(--c), var(--c)) top left / 12px 2px no-repeat,
-      linear-gradient(var(--c), var(--c)) top left / 2px 12px no-repeat,
-      linear-gradient(var(--c), var(--c)) top right / 12px 2px no-repeat,
-      linear-gradient(var(--c), var(--c)) top right / 2px 12px no-repeat,
-      linear-gradient(var(--c), var(--c)) bottom left / 12px 2px no-repeat,
-      linear-gradient(var(--c), var(--c)) bottom left / 2px 12px no-repeat,
-      linear-gradient(var(--c), var(--c)) bottom right / 12px 2px no-repeat,
-      linear-gradient(var(--c), var(--c)) bottom right / 2px 12px no-repeat;
-    animation: iva-corner-lock .45s var(--ease) forwards;
+    z-index: 6;
+    animation: mobile-card-scan .75s ease-out forwards;
   }
-  @keyframes iva-corner-lock {
-    0% { inset: -14px; opacity: 0; }
-    100% { inset: -6px; opacity: 1; }
+  @keyframes mobile-card-scan {
+    0% { top: 0%; opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
   }
 
   /* Blueprint touch circuit ripple */
@@ -1027,24 +1031,46 @@ html.iris-arrive .iris { clip-path: circle(150% at 50% 50%); }
     position: absolute;
     border-radius: 50%;
     pointer-events: none;
-    border: 1px solid var(--accent);
-    background: radial-gradient(circle, rgba(31, 79, 255, .24) 0%, rgba(255, 181, 71, .14) 50%, transparent 70%);
+    border: 1.5px solid var(--accent);
+    background: radial-gradient(circle, rgba(31, 79, 255, .3) 0%, rgba(255, 181, 71, .18) 50%, transparent 70%);
     transform: translate(-50%, -50%) scale(0);
-    animation: mobile-circuit-expand .55s var(--ease) forwards;
+    animation: mobile-circuit-expand .6s var(--ease) forwards;
     z-index: 10;
   }
   @keyframes mobile-circuit-expand {
-    0% { transform: translate(-50%, -50%) scale(0); opacity: .85; }
-    100% { transform: translate(-50%, -50%) scale(2.4); opacity: 0; }
+    0% { transform: translate(-50%, -50%) scale(0); opacity: .9; }
+    100% { transform: translate(-50%, -50%) scale(2.6); opacity: 0; }
   }
 
   /* Mobile scroll focus: cards gently illuminate as they enter reading focus */
   .mobile-in-focus {
-    border-color: rgba(31, 79, 255, .35) !important;
-    box-shadow: 0 6px 20px -4px rgba(31, 79, 255, .08);
+    border-color: rgba(31, 79, 255, .45) !important;
+    box-shadow: 0 8px 24px -4px rgba(31, 79, 255, .12), inset 0 0 0 1px rgba(31, 79, 255, .15) !important;
+    transform: translateY(-2px);
+    transition: transform .4s var(--ease), border-color .4s, box-shadow .4s;
   }
   .mobile-in-focus.xh::after {
-    --c: rgba(31, 79, 255, .45);
+    --c: rgba(31, 79, 255, .55) !important;
+    inset: -8px !important;
+  }
+
+  /* Touch tilt on cards */
+  .tilt.is-touch-active {
+    transition: transform .08s linear, box-shadow .2s;
+    box-shadow: 0 12px 32px -6px rgba(31, 79, 255, .22), 0 0 0 1px rgba(31, 79, 255, .4);
+  }
+  .tilt.is-touch-active .xh::after {
+    inset: -9px;
+    --c: var(--accent);
+  }
+  .tilt.is-touch-active::before {
+    opacity: .85;
+  }
+
+  /* Button active pop */
+  .btn:active, .chip:active, .partner:active {
+    transform: scale(.96);
+    transition: transform .1s var(--ease);
   }
 
   /* Mobile node pulse in topology */
@@ -1061,30 +1087,11 @@ html.iris-arrive .iris { clip-path: circle(150% at 50% 50%); }
     transition: transform .2s ease-out;
   }
 
-  /* Floating action buttons subtle pulse */
+  /* Floating action buttons pulse */
   .float-btn {
     -webkit-tap-highlight-color: transparent;
   }
   .float-btn:active {
     transform: scale(.92);
-  }
-}
-
-@media (hover: none) and (pointer: coarse) {
-  /* Touch tilt response */
-  .tilt.is-touch-active {
-    transition: transform .08s linear, box-shadow .2s;
-    box-shadow: 0 10px 28px -6px rgba(31, 79, 255, .18), 0 0 0 1px rgba(31, 79, 255, .35);
-  }
-  .tilt.is-touch-active .xh::after {
-    inset: -9px;
-    --c: var(--accent);
-  }
-  .tilt.is-touch-active::before {
-    opacity: .75;
-  }
-  .btn:active, .chip:active, .partner:active {
-    transform: scale(.97);
-    transition: transform .1s var(--ease);
   }
 }
