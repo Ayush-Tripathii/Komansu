@@ -1,0 +1,66 @@
+  <!-- ================= IVA cursor + detection box ================= -->
+  <div class="cursor" aria-hidden="true" data-cursor>
+    <span class="cursor-h"></span><span class="cursor-v"></span><span class="cursor-dot"></span>
+  </div>
+  <div class="iva-box" aria-hidden="true" data-iva-box>
+    <i class="c tl"></i><i class="c tr"></i><i class="c bl"></i><i class="c br"></i>
+    <span class="iva-label" data-iva-label></span>
+  </div>
+
+  <!-- ================= Floating contact ================= -->
+  <!-- TODO: replace placeholder number 910000000000 with the real WhatsApp number -->
+  <div class="float-contact">
+    <a class="float-btn float-wa" href="https://wa.me/910000000000?text=Hello%20Komansu%2C%20I%27d%20like%20to%20discuss%20an%20ELV%20project." target="_blank" rel="noopener" aria-label="Chat with Komansu on WhatsApp" data-iva="WHATSAPP · CHAT">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2c0 1.3 1 2.6 1.1 2.8.1.2 1.9 2.9 4.6 4 1.7.7 2.4.8 3.2.7.5-.1 1.5-.6 1.8-1.2.2-.6.2-1.1.1-1.2l-.5-.2Z"/></svg>
+    </a>
+    <a class="float-btn float-call" href="tel:+910000000000" aria-label="Call Komansu" data-iva="CALL · DIRECT">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M5 3h3l2 5-2.5 1.5a11 11 0 0 0 7 7L16 14l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2Z"/></svg>
+    </a>
+  </div>
+
+  <!-- ================= Lightbox (IVA demos) ================= -->
+  <dialog class="lightbox" data-lightbox aria-label="Analytics demo viewer">
+    <div class="lightbox-frame">
+      <div class="lightbox-bar">
+        <span class="mono-label"><i class="rec-dot"></i><span data-lightbox-title>IVA · PLAYBACK</span></span>
+        <div class="lightbox-actions">
+          <a class="lightbox-ext" data-lightbox-ext href="#" target="_blank" rel="noopener">Open in new tab ↗</a>
+          <button class="lightbox-close" type="button" data-lightbox-close aria-label="Close viewer">✕</button>
+        </div>
+      </div>
+      <div class="lightbox-stage" data-lightbox-stage></div>
+    </div>
+  </dialog>
+
+  <!-- ================= Preloader: camera iris + boot log ================= -->
+  <div class="preloader" aria-hidden="true" data-preloader>
+    <div class="preloader-core">
+      <svg class="iris-svg" viewBox="-100 -100 200 200" data-iris-blades>
+        <circle r="96" fill="none" stroke="#E4E2DC"/>
+        <circle r="88" fill="none" stroke="#14171C" stroke-opacity=".08" stroke-dasharray="2 4"/>
+      </svg>
+      <pre class="boot-log" data-boot-log></pre>
+      <button class="boot-skip mono-label" type="button" data-boot-skip>Skip ↵</button>
+    </div>
+  </div>
+
+  <!-- Page transition shutter -->
+  <div class="iris" aria-hidden="true" data-iris>
+    <svg class="iris-svg" viewBox="-100 -100 200 200" data-iris-blades></svg>
+  </div>
+
+  <!-- SVG filter: turns any photo into a blue "AutoCAD" line drawing (used by .morph-base) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <filter id="kmEdge" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%">
+      <feColorMatrix type="saturate" values="0"/>
+      <feGaussianBlur stdDeviation=".6"/>
+      <feConvolveMatrix order="3" kernelMatrix="-1 -1 -1 -1 8 -1 -1 -1 -1" preserveAlpha="true"/>
+      <feComponentTransfer>
+        <feFuncR type="linear" slope="-2.2" intercept="1.02"/>
+        <feFuncG type="linear" slope="-1.6" intercept="1.02"/>
+        <feFuncB type="linear" slope="-0.15" intercept="1"/>
+      </feComponentTransfer>
+    </filter>
+  </svg>
+
+  <noscript><style>.preloader,.iris,.cursor,.iva-box,.beam-layer{display:none!important}</style></noscript>

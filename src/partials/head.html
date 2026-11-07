@@ -1,0 +1,39 @@
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{{TITLE}}</title>
+  <meta name="description" content="{{DESCRIPTION}}">
+  <link rel="canonical" href="{{URL}}">
+  <meta name="theme-color" content="#F7F6F2">
+  <meta name="color-scheme" content="light only">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Komansu Electronics">
+  <meta property="og:title" content="{{TITLE}}">
+  <meta property="og:description" content="{{DESCRIPTION}}">
+  <meta property="og:url" content="{{URL}}">
+  <meta property="og:image" content="{{OG_IMAGE}}">
+  <meta property="og:locale" content="en_IN">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{TITLE}}">
+  <meta name="twitter:description" content="{{DESCRIPTION}}">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+
+  <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600&f[]=general-sans@400,500,600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="assets/css/main.css?v={{V}}">
+
+  <!-- Boot flags set before first paint (no flash): js, preloader once per session, iris page transition -->
+  <script>
+    (function (d) {
+      var h = d.documentElement, s;
+      h.classList.add('js');
+      try { s = window.sessionStorage; } catch (e) { s = null; }
+      var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (s && !s.getItem('km-booted') && !reduce) h.classList.add('is-booting');
+      else if (s && s.getItem('km-nav') && !reduce) h.classList.add('iris-arrive');
+      if (s) s.removeItem('km-nav');
+    })(document);
+  </script>
+  <script type="application/ld+json">{{SCHEMA}}</script>

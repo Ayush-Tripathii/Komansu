@@ -1,0 +1,125 @@
+<!--{"title":"Request a Consultation — Contact Komansu Electronics","description":"Tell us about your ELV project — CCTV, video analytics, fire alarm & PAGA, access control, networks or design consulting. We respond within 24 business hours. Email info@komansu.com.","nav":"contact"}-->
+
+<section class="page-hero page-hero--tight" data-arm>
+  <div class="container">
+    <p class="eyebrow rv"><i class="status-dot"></i>Contact</p>
+    <h1 class="page-title scan rv" style="--i:1">Request a <em>Consultation</em></h1>
+    <p class="hero-sub rv" style="--i:2">Tell us about your project — we'll respond within 24 business hours.</p>
+  </div>
+</section>
+
+<div class="tripwire" data-tripwire="TW-C1 · ACCESS POINT"></div>
+
+<section class="section contact" data-arm aria-label="Consultation form">
+  <div class="container contact-grid">
+    <div class="gate gate--form card xh" data-gate>
+      <div class="gate-reader" aria-hidden="true">
+        <svg viewBox="0 0 160 220" class="reader-svg">
+          <rect class="reader-body" x="30" y="10" width="100" height="200" rx="18"/>
+          <rect class="reader-face" x="44" y="26" width="72" height="110" rx="10"/>
+          <path class="reader-waves" d="M66 70a20 20 0 0 1 28 0M60 62a30 30 0 0 1 40 0M72 78a10 10 0 0 1 16 0"/>
+          <circle class="reader-led" cx="80" cy="166" r="7"/>
+          <text x="80" y="196" text-anchor="middle" class="reader-id">RDR-00</text>
+          <g class="reader-card"><rect x="-10" y="54" width="70" height="44" rx="6"/><rect x="0" y="64" width="16" height="12" rx="2" class="chip"/><text x="0" y="92">KMS · CLIENT</text></g>
+        </svg>
+        <p class="gate-status mono-label" data-gate-status aria-live="polite">PRESENT CREDENTIAL…</p>
+      </div>
+
+      <div class="gate-panel">
+        <form class="kform gate-content" data-form action="api/contact.php" method="post" novalidate>
+          <div class="kform-head">
+            <p class="eyebrow">Access Granted · Enquiry Form</p>
+            <p class="mono-label">FIELDS MARKED * ARE REQUIRED</p>
+          </div>
+          <div class="kform-grid">
+            <div class="field">
+              <input id="f-first" name="first_name" type="text" autocomplete="given-name" required placeholder=" " maxlength="80">
+              <label for="f-first">First Name *</label><span class="field-line"></span>
+              <span class="field-err" id="f-first-err" role="alert"></span>
+            </div>
+            <div class="field">
+              <input id="f-last" name="last_name" type="text" autocomplete="family-name" placeholder=" " maxlength="80">
+              <label for="f-last">Last Name</label><span class="field-line"></span>
+            </div>
+            <div class="field field--wide">
+              <input id="f-company" name="company" type="text" autocomplete="organization" placeholder=" " maxlength="120">
+              <label for="f-company">Company / Organisation</label><span class="field-line"></span>
+            </div>
+            <div class="field">
+              <input id="f-email" name="email" type="email" autocomplete="email" required placeholder=" " maxlength="160">
+              <label for="f-email">Email *</label><span class="field-line"></span>
+              <span class="field-err" id="f-email-err" role="alert"></span>
+            </div>
+            <div class="field">
+              <input id="f-phone" name="phone" type="tel" autocomplete="tel" placeholder=" " maxlength="30" pattern="[0-9+()\-\s]{7,30}">
+              <label for="f-phone">Phone</label><span class="field-line"></span>
+              <span class="field-err" id="f-phone-err" role="alert"></span>
+            </div>
+            <div class="field field--select">
+              <select id="f-service" name="service">
+                <option value="">Select a service</option>
+                <option>CCTV Surveillance</option>
+                <option>Intelligent Video Analytics</option>
+                <option>Fire Alarm &amp; PA Systems (FAS/PAGA)</option>
+                <option>Access Control Systems</option>
+                <option>Data Networks &amp; WiFi Infrastructure</option>
+                <option>ELV Design &amp; Consulting</option>
+                <option>Multiple – Full ELV Package</option>
+              </select>
+              <label for="f-service">Service Required</label><span class="field-line"></span>
+            </div>
+            <div class="field field--select">
+              <select id="f-type" name="project_type">
+                <option value="">Select project type</option>
+                <option>New Build / Greenfield</option>
+                <option>Retrofit / Upgrade</option>
+                <option>Design Consulting Only</option>
+                <option>BOQ &amp; Documentation</option>
+                <option>Maintenance &amp; Support</option>
+              </select>
+              <label for="f-type">Project Type</label><span class="field-line"></span>
+            </div>
+            <div class="field field--wide">
+              <textarea id="f-details" name="details" rows="5" required placeholder=" " maxlength="4000"></textarea>
+              <label for="f-details">Project Details *</label><span class="field-line"></span>
+              <span class="field-err" id="f-details-err" role="alert"></span>
+            </div>
+            <!-- honeypot -->
+            <div class="hp" aria-hidden="true"><label>Leave empty<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+          </div>
+          <div class="kform-foot">
+            <button class="btn btn-primary submit magnetic" type="submit" data-submit data-iva="SUBMIT · CONFIDENCE 99.8%">
+              <span class="submit-label">Send Enquiry</span>
+              <svg class="submit-ring" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/></svg>
+              <svg class="submit-check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+            </button>
+            <p class="form-status" data-form-status role="status" aria-live="polite"></p>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <aside class="contact-aside">
+      <a class="info-card card xh" href="mailto:info@komansu.com" data-iva="EMAIL · INFO@KOMANSU.COM">
+        <span class="mono-label">CH-01 · Email</span><b>info@komansu.com</b>
+      </a>
+      <div class="info-card card xh">
+        <span class="mono-label">CH-02 · Registered Office</span><b>Komansu Electronics Pvt. Ltd.</b><span>India</span>
+      </div>
+      <div class="info-card card xh">
+        <span class="mono-label">CH-03 · Response Time</span><b><i class="status-dot"></i>Within 24 business hours</b>
+      </div>
+      <div class="engage card xh">
+        <span class="mono-label">Areas of Engagement</span>
+        <ul>
+          <li>Industrial &amp; Oil/Gas facilities</li>
+          <li>Hospitality developments</li>
+          <li>Commercial buildings</li>
+          <li>Infrastructure projects</li>
+          <li>EPC &amp; PMC contracts</li>
+          <li>Consultant-led design packages</li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+</section>

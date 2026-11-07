@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+{{HEAD}}
+</head>
+<body class="{{BODY_CLASS}}">
+  <!-- Fixed blueprint layers: paper grid, spotlit grid (masked to the beam), grain -->
+  <div class="bp-grid" aria-hidden="true"></div>
+  <div class="bp-grid bp-grid--lit" aria-hidden="true"></div>
+  <div class="bp-noise" aria-hidden="true"></div>
+
+{{HEADER}}
+
+  <main id="main" class="site-main">
+{{MAIN}}
+  </main>
+
+{{FOOTER}}
+
+{{OVERLAYS}}
+
+  <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js" defer></script>
+  <script src="assets/js/main.js?v={{V}}" defer></script>
+</body>
+</html>

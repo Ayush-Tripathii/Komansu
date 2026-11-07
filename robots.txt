@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /storage/
+Sitemap: https://www.komansu.com/sitemap.xml
