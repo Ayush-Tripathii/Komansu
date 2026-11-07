@@ -20,12 +20,10 @@
   <meta name="twitter:description" content="Komansu Electronics delivers end-to-end Extra Low Voltage solutions — CCTV, video analytics, fire alarm & PAGA, access control and data networks — for industrial and hospitality projects across India.">
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
 
-  <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600&f[]=general-sans@400,500,600&display=swap">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap">
-  <link rel="stylesheet" href="assets/css/main.css?v=mw63k64w">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Space+Grotesk:wght@500;600;700&display=swap">
+  <link rel="stylesheet" href="assets/css/main.css?v=mw6943an">
 
   <!-- Boot flags set before first paint (no flash): js, preloader once per session, iris page transition -->
   <script>
@@ -138,18 +136,20 @@
   <svg class="beam-layer" aria-hidden="true" data-beam>
     <defs>
       <linearGradient id="kmBeamGrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#FFB547" stop-opacity=".55"/>
-        <stop offset=".55" stop-color="#FFB547" stop-opacity=".16"/>
-        <stop offset="1" stop-color="#FFB547" stop-opacity=".05"/>
+        <stop offset="0" stop-color="#1F4FFF" stop-opacity=".75"/>
+        <stop offset=".3" stop-color="#5A84FF" stop-opacity=".45"/>
+        <stop offset=".7" stop-color="#FFB547" stop-opacity=".35"/>
+        <stop offset="1" stop-color="#FF9A00" stop-opacity=".12"/>
       </linearGradient>
       <radialGradient id="kmSpotGrad">
-        <stop offset="0" stop-color="#FFC56B" stop-opacity=".38"/>
-        <stop offset=".55" stop-color="#FFB547" stop-opacity=".12"/>
-        <stop offset="1" stop-color="#FFB547" stop-opacity="0"/>
+        <stop offset="0" stop-color="#FFD17A" stop-opacity=".65"/>
+        <stop offset=".4" stop-color="#FFB547" stop-opacity=".32"/>
+        <stop offset=".8" stop-color="#1F4FFF" stop-opacity=".12"/>
+        <stop offset="1" stop-color="#1F4FFF" stop-opacity="0"/>
       </radialGradient>
     </defs>
     <polygon class="beam-cone" fill="url(#kmBeamGrad)" points="0,0 0,0 0,0"/>
-    <polygon class="beam-core" fill="url(#kmBeamGrad)" points="0,0 0,0 0,0" opacity=".6"/>
+    <polygon class="beam-core" fill="url(#kmBeamGrad)" points="0,0 0,0 0,0" opacity=".7"/>
     <ellipse class="beam-spot" fill="url(#kmSpotGrad)" cx="-999" cy="-999" rx="150" ry="110"/>
   </svg>
 
@@ -166,6 +166,12 @@
   </div>
 
   <div class="container hero-inner">
+    <div class="mobile-surveillance-hud mono-label" aria-hidden="true">
+      <span class="m-hud-rec"><i class="rec-dot"></i>LIVE 4K</span>
+      <span class="m-hud-stat">GRID: ARMED</span>
+      <span class="m-hud-coord">28.61°N · 77.21°E</span>
+      <span class="m-hud-sig">SIG <span class="sig-bars"><i></i><i></i><i></i><i></i></span></span>
+    </div>
     <p class="eyebrow rv" style="--i:0"><i class="status-dot"></i>Trusted ELV Specialists</p>
     <h1 class="hero-title scan rv" style="--i:1">
       <span class="line">Intelligent <em>ELV Systems</em></span>
@@ -591,6 +597,9 @@
     <span class="m-text" data-mobile-iva-text>IVA · SCANNING</span>
   </div>
 
+  <!-- ================= Mobile Ambient Radar Scanner ================= -->
+  <div class="mobile-laser-scan" aria-hidden="true"></div>
+
   <!-- ================= Floating contact ================= -->
   <!-- TODO: replace placeholder number 910000000000 with the real WhatsApp number -->
   <div class="float-contact">
@@ -651,6 +660,6 @@
 
 
   <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js" defer></script>
-  <script src="assets/js/main.js?v=mw63k64w" defer></script>
+  <script src="assets/js/main.js?v=mw6943an" defer></script>
 </body>
 </html>

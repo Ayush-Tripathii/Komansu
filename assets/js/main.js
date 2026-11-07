@@ -26,6 +26,7 @@
   const FINE = matchMedia('(hover: hover) and (pointer: fine)').matches;
   const isMobile = () => S.vw <= 900 || !FINE;
   const store = (() => { try { return window.sessionStorage; } catch (e) { return null; } })();
+  let showMobileHUD = () => {};
 
   /** Shared pointer / scroll state read by the render loop */
   const S = {
@@ -189,6 +190,12 @@
     addEventListener('pointerdown', (e) => {
       if (e.pointerType === 'touch') { S.tapX = e.clientX; S.tapY = e.clientY; S.lastMove = performance.now(); }
       else html.classList.add('cursor-down');
+    }, { passive: true });
+    addEventListener('touchstart', (e) => {
+      if (!e.touches || !e.touches[0]) return;
+      S.tapX = e.touches[0].clientX;
+      S.tapY = e.touches[0].clientY;
+      S.lastMove = performance.now();
     }, { passive: true });
     // Track continuous touch dragging so Sentinel camera swivels on mobile
     addEventListener('touchmove', (e) => {
@@ -363,6 +370,10 @@
         w.classList.remove('is-tripped'); void w.offsetWidth;
         w.classList.add('is-tripped');
         clearTimeout(w._t); w._t = setTimeout(() => w.classList.remove('is-tripped'), 1500);
+        if (isMobile()) {
+          const name = w.getAttribute('data-tripwire') || 'PERIMETER SENSOR';
+          showMobileHUD(`GRID // ${name}`);
+        }
       };
       this.trip = trip;
 
@@ -497,6 +508,9 @@
         e.stopPropagation();
         hovering = true;
         light(id);
+        if (isMobile()) {
+          showMobileHUD(`TOPOLOGY // ${names[id] || id.toUpperCase()} → CORE SWITCH [0.4 MS]`);
+        }
         setTimeout(() => { hovering = false; }, 3200);
       });
     });
@@ -928,7 +942,7 @@
     const toast = $('[data-mobile-iva]');
     const toastText = $('[data-mobile-iva-text]', toast);
     let toastTimer = 0;
-    const showMobileHUD = (txt) => {
+    showMobileHUD = (txt) => {
       if (!toast || !isMobile()) return;
       clearTimeout(toastTimer);
       if (toastText) toastText.textContent = txt;
